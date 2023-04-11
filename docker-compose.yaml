@@ -269,6 +269,7 @@ services:
       - influx
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./custom.pub:/custom.pub
     environment:
       - GF_PANELS_DISABLE_SANITIZE_HTML=$GF_PANELS_DISABLE_SANITIZE_HTML
       - GF_AUTH_PROXY_ENABLED=$GF_AUTH_PROXY_ENABLED
@@ -307,7 +308,6 @@ services:
         max-size: "10m"
     restart: unless-stopped
     container_name: carrier-pylon
-    user: ${UID}
     depends_on:
       - postgres
       - traefik
@@ -320,6 +320,9 @@ services:
       - mongo
     volumes:
       - .:/data
+    environment:
+      - CUSTOM_CA_PATH=/data/custom.pub
+      - CA_BUNDLE_PATH=/usr/local/lib/python3.10/site-packages/certifi/cacert.pem
     env_file:
       - .env
     networks:
@@ -341,7 +344,6 @@ services:
         max-size: "10m"
     restart: unless-stopped
     container_name: carrier-pylon-auth
-    user: ${UID}
     depends_on:
       - postgres
       - traefik
@@ -357,6 +359,8 @@ services:
       - .env
     environment:
       - CORE_CONFIG_SEED=file:/data/config/pylon_auth.yml
+      - CUSTOM_CA_PATH=/data/custom.pub
+      - CA_BUNDLE_PATH=/usr/local/lib/python3.10/site-packages/certifi/cacert.pem
     networks:
       - pylon
     labels:
@@ -373,7 +377,6 @@ services:
         max-size: "10m"
     restart: unless-stopped
     container_name: carrier-pylon-worker
-    user: ${UID}
     depends_on:
       - traefik
       - loki
@@ -388,6 +391,8 @@ services:
       - .env
     environment:
       - CORE_CONFIG_SEED=file:/data/config/pylon_worker.yml
+      - CUSTOM_CA_PATH=/data/custom.pub
+      - CA_BUNDLE_PATH=/usr/local/lib/python3.10/site-packages/certifi/cacert.pem
     networks:
       - pylon
     labels:
@@ -404,3 +409,5 @@ volumes:
 
 networks:
   pylon:
+    name: pylon
+    external: true
