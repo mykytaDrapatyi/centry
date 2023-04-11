@@ -51,4 +51,5 @@ down:
 
 purge: down
 	docker volume rm $(GET_CENTRY_VOLUMES)
+	rm -rf {pylon,pylon_auth,pylon_worker}/{plugins,requirements,configs}/*
 
